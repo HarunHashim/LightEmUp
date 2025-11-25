@@ -1,0 +1,14 @@
+{
+  "background": "assets/backgrounds/level1.png",
+  "lightSource": { "x": 120, "y": 300, "dx": 1, "dy": 0 },
+  "mirrors": [
+    { "x": 550, "y": 350, "angle": -30 }
+  ],
+  "targets": [
+    { "x": 750, "y": 250 }
+  ],
+
+  "watertanks": [
+    { "x": 550, "y": 350, "angle": -30 }
+  ]
+}
