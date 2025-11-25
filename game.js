@@ -12,8 +12,12 @@ let bgLoaded = false;
 bg.onload = () => bgLoaded = true;
 
 
+
+
 // Global state
 let currentLevel = null;
+let currentLevelIndex = 1;
+let levelTransitioning = false;
 let objects = [];
 let lightSource = null;
 let targets = [];
@@ -334,9 +338,16 @@ function castRay(source) {
 
 
 async function completeLevel(){
+  if (levelTransitioning) return;
+  levelTransitioning = true;
+
+  alert("Level Complete!");
+
   await loadLevel("levels/level2.json");
-  loop();
+
+  levelTransitioning = false;
 }
+
 
 //Load level
 
@@ -353,6 +364,9 @@ async function loadLevel(path) {
   mirrors = data.mirrors.map(m => new Mirror(m.x, m.y, m.angle));
   targets = data.targets.map(t => new Target(t.x, t.y));
   watertanks = data.watertanks.map(w => new WaterTank(w.x, w.y, w.width, w.height));
+
+  targets.forEach(t => t.hit = false); // reset
+
   console.log(watertanks);
 }
 
@@ -418,14 +432,14 @@ function loop() {
   lightSource.draw();
 
   mirrors.forEach(m => m.draw());
-  targets.forEach(t => t.draw());
   watertanks.forEach(w => w.draw());
-
+  targets.forEach(t => t.draw());
   
-
-  targets.forEach(t => t.hit = false); // reset
-
+  
+  
   castRay(lightSource);
+
+
 
   requestAnimationFrame(loop);
 }
