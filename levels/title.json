@@ -1,0 +1,8 @@
+{
+  "background": "assets/backgrounds/titleScreen.png",
+  "lightSource": { "x": -999, "y": -999, "dx": 0, "dy": 0 },
+  "drLight": null,
+  "mirrors": [],
+  "targets": [],
+  "watertanks": []
+}

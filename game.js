@@ -4,16 +4,6 @@ const ctx = canvas.getContext("2d");
 ctx.imageSmoothingEnabled = true;
 
 
-//For background 
-const bg = new Image();
-bg.src = "assets/backgrounds/level1.png";
-let bgLoaded = false;
-
-bg.onload = () => bgLoaded = true;
-
-
-
-
 // Global state
 let currentLevel = null;
 let currentLevelIndex = 1;
@@ -25,6 +15,20 @@ let mirrors = [];
 let watertanks = [];
 let draggingObj = null;
 let dragOffset = {x:0, y:0};
+
+let bg = null;
+let bgLoaded = false;
+
+
+
+let drLight = null;
+let drLightImg = null;
+let drLightLoaded = false;
+
+
+// let gameState = "title"; // "title" -> "intro" -> "playing"
+
+
 
 class WaterTank {
   constructor(x, y, width, height, refractionOffset = 0.5) {
@@ -219,7 +223,7 @@ function castRay(source) {
   let safety = 0;
 
   ctx.strokeStyle = "yellow";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 4;
 
   while (maxDistance > 0) {
     safety++;
@@ -253,26 +257,33 @@ function castRay(source) {
 
     // Check targets
     targets.forEach(t => {
-      // Calculate distance from ray origin to target
-      const dx = t.x - ray.x;
-      const dy = t.y - ray.y;
-      const dist = Math.hypot(dx, dy);
-      
-      // Project target position onto ray direction
-      const dot = dx * ray.dx + dy * ray.dy;
-      
-      if (dot > 0) { // Target is in front of ray
-        const projX = ray.x + ray.dx * dot;
-        const projY = ray.y + ray.dy * dot;
-        const perpDist = Math.hypot(t.x - projX, t.y - projY);
-        
-        // Check if ray passes within 20 pixels of target center
-        if (perpDist < 20 && dist > 0.01 && (!closestHit || dist < closestHit.dist)) {
-          closestHit = { x: projX, y: projY, dist: dist };
-          closestTarget = t;
-          hitType = 'target';
+        // Treat target as a small circle (radius = 20)
+        const r = 20;
+
+        // Ray-circle intersection math
+        const fx = ray.x - t.x;
+        const fy = ray.y - t.y;
+
+        const a = ray.dx * ray.dx + ray.dy * ray.dy;
+        const b = 2 * (fx * ray.dx + fy * ray.dy);
+        const c = (fx * fx + fy * fy) - r * r;
+
+        const discriminant = b * b - 4 * a * c;
+        if (discriminant < 0) return; // no hit
+
+        const t1 = (-b - Math.sqrt(discriminant)) / (2 * a);
+        const t2 = (-b + Math.sqrt(discriminant)) / (2 * a);
+
+        const hitT = Math.min(t1, t2);
+        if (hitT > 0.01 && (!closestHit || hitT < closestHit.dist)) {
+            closestHit = {
+                x: ray.x + ray.dx * hitT,
+                y: ray.y + ray.dy * hitT,
+                dist: hitT
+            };
+            closestTarget = t;
+            hitType = "target";
         }
-      }
     });
 
     // If no valid collision then draw beam to infinity
@@ -354,6 +365,35 @@ async function completeLevel(){
 async function loadLevel(path) {
   const data = await fetch(path).then(r => r.json());
 
+  // load background 
+  bgLoaded = false;
+  bg = new Image();
+  bg.src = data.background;
+  bg.onload = () => bgLoaded = true;
+
+ 
+
+  //Dr Light
+   // Load Dr Light image (if present)
+  if (data.drLight) {
+      drLight = {
+          x: data.drLight.x,
+          y: data.drLight.y,
+          scale: data.drLight.scale
+      };
+
+      drLightImg = new Image();
+      drLightLoaded = false;
+
+      drLightImg.onload = () => drLightLoaded = true;
+      drLightImg.src = data.drLight.img;
+
+  } else {
+      drLight = null;
+      drLightImg = null;
+  }
+
+  // rebuild game objects 
   lightSource = new LightSource(
     data.lightSource.x,
     data.lightSource.y,
@@ -363,12 +403,21 @@ async function loadLevel(path) {
 
   mirrors = data.mirrors.map(m => new Mirror(m.x, m.y, m.angle));
   targets = data.targets.map(t => new Target(t.x, t.y));
-  watertanks = data.watertanks.map(w => new WaterTank(w.x, w.y, w.width, w.height));
+  watertanks = data.watertanks.map(w => new WaterTank(w.x, w.y, w.width, w.height, w.refractionOffset));
 
-  targets.forEach(t => t.hit = false); // reset
+  // IMPORTANT: reset target hits only once per level, not each frame
+  targets.forEach(t => t.hit = false);
+
+   // If this level has a timed duration → auto transition
+  if (data.duration) {
+      setTimeout(() => {
+          loadLevel("levels/level1.json");
+      }, data.duration);
+  }
 
   console.log(watertanks);
 }
+
 
 
 
@@ -405,6 +454,12 @@ canvas.addEventListener("mousemove", e => {
 
 canvas.addEventListener("mouseup", () => draggingObj = null);
 
+canvas.addEventListener("click", () => {
+    if (bg && bg.src.includes("titleScreen")) {
+        loadLevel("levels/level0.json");  // Dr Light intro
+    }
+});
+
 // Function responisble for rotation 
 
 window.addEventListener("keydown", e => {
@@ -416,8 +471,13 @@ window.addEventListener("keydown", e => {
 
 
 
+
 function loop() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
+  targets.forEach(t => t.hit = false);
+
 
   // Draw background
   if (bgLoaded) {
@@ -427,7 +487,13 @@ function loop() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-  // (optional) if using level image
+  if (drLight && drLightLoaded) {
+    const w = drLightImg.width * drLight.scale;
+    const h = drLightImg.height * drLight.scale;
+    
+    ctx.drawImage(drLightImg, drLight.x, drLight.y, w, h);
+  }
+  
 
   lightSource.draw();
 
@@ -444,10 +510,9 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-
 async function startGame() {
-  await loadLevel("levels/level1.json");
-  loop();
+    await loadLevel("levels/title.json");
+    loop();
 }
 
 startGame();

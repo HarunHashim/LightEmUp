@@ -1,6 +1,6 @@
 {
   "background": "assets/backgrounds/level1.png",
-  "lightSource": { "x": 120, "y": 300, "dx": 1, "dy": 0 },
+  "lightSource": { "x": 120, "y": 400, "dx": 1, "dy": 0 },
   "mirrors": [
     
     { "x": 550, "y": 350, "angle": 45 }
@@ -11,5 +11,11 @@
 
   "watertanks": [
     
-  ]
+  ],
+  "drLight": {
+    "img": "assets/characters/drLight_Ref.png",
+    "x": 40,
+    "y": 450,
+    "scale": 0.2
+  }
 }

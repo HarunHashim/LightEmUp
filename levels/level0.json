@@ -1,0 +1,18 @@
+{
+  "background": "assets/backgrounds/level2.png",
+
+  "lightSource": { "x": -999, "y": -999, "dx": 0, "dy": 0 },
+
+  "drLight": {
+    "img": "assets/characters/drLight_intro.png",
+    "x": 0,
+    "y": 0,
+    "scale": 0.3
+  },
+
+  "mirrors": [],
+  "targets": [],
+  "watertanks": [],
+
+  "duration": 4000
+}

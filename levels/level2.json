@@ -5,7 +5,7 @@
     { "x": 550, "y": 350, "angle": -30 }
   ],
   "targets": [
-    { "x": 750, "y": 250 }
+    { "x": 600, "y": 100 }
   ],
   "watertanks": [
     { "x": 450, "y": 200, "width": 200, "height": 150, "refractionOffset": 0.5 }
