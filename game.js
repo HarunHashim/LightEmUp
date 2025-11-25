@@ -352,11 +352,16 @@ async function completeLevel(){
   if (levelTransitioning) return;
   levelTransitioning = true;
 
-  alert("Level Complete!");
+  setTimeout(async() => {
+    alert("Level Complete!");
+    
+    await loadLevel("levels/level2.json");
+    levelTransitioning = false;
 
-  await loadLevel("levels/level2.json");
+  }, 500);
 
-  levelTransitioning = false;
+
+
 }
 
 
