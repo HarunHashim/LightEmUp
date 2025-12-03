@@ -13,6 +13,9 @@
   "mirrors": [],
   "targets": [],
   "watertanks": [],
+  "obstacles": [],
+
+  
 
   "duration": 5000
 }

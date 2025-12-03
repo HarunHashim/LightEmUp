@@ -1,0 +1,31 @@
+{
+  "background": "assets/backgrounds/level2.png",
+
+  "lightSource": { "x": 120, "y": 360, "dx": 1, "dy": 0 },
+
+  "drLight": null,
+
+  "mirrors": [
+    { "x": 620, "y": 260, "angle": -35 }
+  ],
+
+  "watertanks": [
+    {
+      "x": 320,
+      "y": 230,
+      "width": 140,
+      "height": 110,
+      "refractionOffset": 0.45
+    }
+  ],
+
+  "targets": [
+    { "x": 780, "y": 160 }
+  ],
+
+  "obstacles": [
+    { "x": 460, "y": 170, "width": 40, "height": 250 }
+  ]
+
+
+}

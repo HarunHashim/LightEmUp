@@ -6,13 +6,15 @@ ctx.imageSmoothingEnabled = true;
 
 // Global state
 let currentLevel = null;
-let currentLevelIndex = 1;
+
 let levelTransitioning = false;
 let objects = [];
 let lightSource = null;
 let targets = [];
 let mirrors = [];
+let obstacles = [];
 let watertanks = [];
+let currentLevelData = null;
 let draggingObj = null;
 let dragOffset = {x:0, y:0};
 
@@ -28,6 +30,15 @@ let drLightLoaded = false;
 
 // let gameState = "title"; // "title" -> "intro" -> "playing"
 
+const levelOrder = [ // intro
+    "levels/level1.json",  // actual level 1
+    "levels/level2.json",
+    "levels/level3.json",
+    "levels/level4.json",
+    "levels/level5.json",
+];
+
+let currentLevelIndex = 0;
 
 
 class WaterTank {
@@ -62,6 +73,33 @@ class WaterTank {
   //   return angle + this.refractionOffset;
   // }
 }
+
+//Obstacle
+
+class Obstacle {
+    constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(34, 14, 0, 1)";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    // For collision = treat each side as a line segment
+    getSides() {
+        return [
+            { x1: this.x, y1: this.y, x2: this.x + this.width, y2: this.y },
+            { x1: this.x + this.width, y1: this.y, x2: this.x + this.width, y2: this.y + this.height },
+            { x1: this.x + this.width, y1: this.y + this.height, x2: this.x, y2: this.y + this.height },
+            { x1: this.x, y1: this.y + this.height, x2: this.x, y2: this.y }
+        ];
+    }
+}
+
 
 
 class Mirror {
@@ -286,6 +324,18 @@ function castRay(source) {
         }
     });
 
+    // Check obstacles
+    obstacles.forEach(ob => {
+        ob.getSides().forEach(side => {
+            const hit = rayLineIntersection(ray, side);
+            if (hit && hit.dist > 0.01 && (!closestHit || hit.dist < closestHit.dist)) {
+                closestHit = hit;
+                hitType = "obstacle";
+            }
+        });
+    });
+
+
     // If no valid collision then draw beam to infinity
     if (!closestHit || !isFinite(closestHit.dist)) {
       ctx.beginPath();
@@ -341,35 +391,50 @@ function castRay(source) {
       closestTarget.hit = true;
       completeLevel();
       break; // Stop the ray
+    
+    }else if (hitType === "obstacle") {
+      // Draw beam stopping here
+      // Do not continue the ray
+      break;
     }
+
 
     maxDistance -= closestHit.dist;
   }
 }
 
 
-async function completeLevel(){
-  if (levelTransitioning) return;
-  levelTransitioning = true;
+async function completeLevel() {
+    if (levelTransitioning) return;
+    levelTransitioning = true;
 
-  setTimeout(async() => {
-    alert("Level Complete!");
-    
-    await loadLevel("levels/level2.json");
-    levelTransitioning = false;
+    setTimeout(async () => {
 
-  }, 500);
+        // Move to next REAL gameplay level
+        currentLevelIndex++;
 
+        if (currentLevelIndex >= levelOrder.length) {
+            alert("You finished all levels!");
+            levelTransitioning = false;
+            return;
+        }
 
+        alert("Level complete!");
+        await loadLevel(levelOrder[currentLevelIndex]);
+        levelTransitioning = false;
 
+    }, 400); 
 }
+
+
+
 
 
 //Load level
 
 async function loadLevel(path) {
   const data = await fetch(path).then(r => r.json());
-
+  currentLevelData = data;
   // load background 
   bgLoaded = false;
   bg = new Image();
@@ -409,6 +474,7 @@ async function loadLevel(path) {
   mirrors = data.mirrors.map(m => new Mirror(m.x, m.y, m.angle));
   targets = data.targets.map(t => new Target(t.x, t.y));
   watertanks = data.watertanks.map(w => new WaterTank(w.x, w.y, w.width, w.height, w.refractionOffset));
+  obstacles = data.obstacles.map(o => new Obstacle(o.x, o.y, o.width, o.height));
 
   // IMPORTANT: reset target hits only once per level, not each frame
   targets.forEach(t => t.hit = false);
@@ -505,7 +571,8 @@ function loop() {
   mirrors.forEach(m => m.draw());
   watertanks.forEach(w => w.draw());
   targets.forEach(t => t.draw());
-  
+  obstacles.forEach(o => o.draw());
+
   
   
   castRay(lightSource);

@@ -9,5 +9,9 @@
   ],
   "watertanks": [
     { "x": 200, "y": 50, "width": 200, "height": 150, "refractionOffset": 0.5 }
-  ]
+  ],
+
+
+
+  "obstacles": []
 }
