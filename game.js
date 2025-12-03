@@ -20,6 +20,7 @@ let dragOffset = {x:0, y:0};
 
 let bg = null;
 let bgLoaded = false;
+let bgm = null;
 
 
 
@@ -440,7 +441,7 @@ async function loadLevel(path) {
   bg = new Image();
   bg.src = data.background;
   bg.onload = () => bgLoaded = true;
-
+  bgm.play();
  
 
   //Dr Light
@@ -583,6 +584,10 @@ function loop() {
 }
 
 async function startGame() {
+    bgm = new Audio("assets/music/test.mp3");
+    bgm.loop = true;
+    bgm.volume = 0.5;
+
     await loadLevel("levels/title.json");
     loop();
 }
