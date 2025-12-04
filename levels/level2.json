@@ -2,16 +2,25 @@
   "background": "assets/backgrounds/level2.png",
   "lightSource": { "x": 120, "y": 300, "dx": 1, "dy": 0 },
   "mirrors": [
-    { "x": 550, "y": 350, "angle": -30 }
+    { "x": 550, "y": 350, "angle": -30 },
+    { "x": 400, "y": 350, "angle": 30 }
   ],
   "targets": [
     { "x": 600, "y": 100 }
   ],
-  "watertanks": [
-    { "x": 200, "y": 50, "width": 200, "height": 150, "refractionOffset": 0.5 }
+
+  "obstacles": [
+    { "x": 450, "y": 180, "width": 40, "height": 220 }
   ],
 
+   "drLight": {
+    "img": "assets/characters/drLightReflection2_c.png",
+    "x": 40,
+    "y": 410,
+    "scale": 0.3
+  },
 
-
-  "obstacles": []
+  "watertanks": [],
+  "raysplitters": []
 }
+

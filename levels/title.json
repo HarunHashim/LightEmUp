@@ -5,6 +5,7 @@
   "mirrors": [],
   "targets": [],
   "obstacles": [],
-  "watertanks": []
+  "watertanks": [],
+  "raysplitters": []
 
 }
