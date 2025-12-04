@@ -22,6 +22,8 @@
     { "x": 260, "y": 340, "width": 300, "height": 40 },
     { "x": 520, "y": 180, "width": 40, "height": 200 },
     { "x": 620, "y": 100, "width": 40, "height": 150 }
-  ]
+  ],
+
+  "raysplitter": []
 
 }
