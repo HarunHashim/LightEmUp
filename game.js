@@ -463,15 +463,22 @@ function castRay(source) {
       break; // Stop the original ray after splitting
 
     } else if (hitType === 'target') {
+      // Mark this target as hit
       closestTarget.hit = true;
-      completeLevel();
-      break;
+      
+      // Check if ALL targets are now hit
+      const allTargetsHit = targets.every(t => t.hit);
+      
+      if (allTargetsHit) {
+        completeLevel();
+      }
+      
+      break; // Stop the ray after hitting target
     }
 
     maxDistance -= closestHit.dist;
   }
 }
-
 
 function reflectVector(dx, dy, nx, ny) {
   const dot = dx * nx + dy * ny;
