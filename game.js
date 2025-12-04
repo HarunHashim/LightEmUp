@@ -36,10 +36,33 @@ const levelOrder = [ // intro
     "levels/level3.json",
     "levels/level4.json",
     "levels/level5.json",
+    "levels/level6.json"
 ];
 
 let currentLevelIndex = 0;
 
+class Diffuser {
+    constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+    }
+
+    draw() {
+        ctx.fillStyle = "rgba(255, 200, 50, 0.8)"; // yellow-ish block
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    getSides() {
+        return [
+            { x1: this.x, y1: this.y, x2: this.x + this.width, y2: this.y },
+            { x1: this.x + this.width, y1: this.y, x2: this.x + this.width, y2: this.y + this.height },
+            { x1: this.x + this.width, y1: this.y + this.height, x2: this.x, y2: this.y + this.height },
+            { x1: this.x, y1: this.y + this.height, x2: this.x, y2: this.y }
+        ];
+    }
+}
 
 class WaterTank {
   constructor(x, y, width, height, refractionOffset = 0.5) {
@@ -335,6 +358,17 @@ function castRay(source) {
         });
     });
 
+    // Check diffusers
+    diffusers.forEach(d => {
+        d.getSides().forEach(side => {
+            const hit = rayLineIntersection(ray, side);
+            if (hit && hit.dist > 0.01 && (!closestHit || hit.dist < closestHit.dist)) {
+                closestHit = hit;
+                hitType = "diffuse";
+            }
+        });
+    });
+
 
     // If no valid collision then draw beam to infinity
     if (!closestHit || !isFinite(closestHit.dist)) {
@@ -396,7 +430,33 @@ function castRay(source) {
       // Draw beam stopping here
       // Do not continue the ray
       break;
+    }else if (hitType === "diffuse") {
+
+      // Spread angle
+      const spread = 0.3;  // adjust for wider diffusion
+
+      // Create 3 new rays
+      const rays = [
+          { dx: ray.dx, dy: ray.dy },                         // center
+          { dx: Math.cos(Math.atan2(ray.dy, ray.dx) + spread),
+            dy: Math.sin(Math.atan2(ray.dy, ray.dx) + spread) },  // upper
+          { dx: Math.cos(Math.atan2(ray.dy, ray.dx) - spread),
+            dy: Math.sin(Math.atan2(ray.dy, ray.dx) - spread) }   // lower
+      ];
+
+      // Recursively cast each ray from the point of hit
+      rays.forEach(r => {
+          castRay({
+              x: closestHit.x,
+              y: closestHit.y,
+              dx: r.dx,
+              dy: r.dy
+          });
+      });
+
+      break; // stop the main ray
     }
+
 
 
     maxDistance -= closestHit.dist;
@@ -475,6 +535,7 @@ async function loadLevel(path) {
   targets = data.targets.map(t => new Target(t.x, t.y));
   watertanks = data.watertanks.map(w => new WaterTank(w.x, w.y, w.width, w.height, w.refractionOffset));
   obstacles = data.obstacles.map(o => new Obstacle(o.x, o.y, o.width, o.height));
+  diffusers = data.diffusers.map(d => new Diffuser(d.x, d.y, d.width, d.height));
 
   // IMPORTANT: reset target hits only once per level, not each frame
   targets.forEach(t => t.hit = false);

@@ -11,7 +11,7 @@
   ],
 
   "watertanks": [],
-
+  "diffusers": [],
   "targets": [
     { "x": 780, "y": 90 }
   ],

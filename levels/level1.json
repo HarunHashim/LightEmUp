@@ -13,6 +13,7 @@
     
   ],
   "obstacles" :[],
+  "diffusers": [],
   "drLight": {
     "img": "assets/characters/drLight_Ref.png",
     "x": 40,
