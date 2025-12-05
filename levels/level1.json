@@ -10,7 +10,6 @@
   ],
 
   "watertanks": [
-    
   ],
   "obstacles" :[],
   "drLight": {
@@ -19,5 +18,6 @@
     "y": 450,
     "scale": 0.2
   },
-  "raysplitters": []
+  "raysplitters": [],
+  "instructions": "Click and drag the objects to manipulate light with them! Press 'A' and 'D' while holding a mirror to rotate them."
 }

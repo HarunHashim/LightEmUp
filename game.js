@@ -76,6 +76,46 @@ class WaterTank {
   // }
 }
 
+function drawInstructionBox() {
+  if (!instructionBox) return;
+  
+  // Draw white background
+  ctx.fillStyle = 'white';
+  ctx.fillRect(instructionBox.x, instructionBox.y, instructionBox.width, instructionBox.height);
+  
+  // Draw black border
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(instructionBox.x, instructionBox.y, instructionBox.width, instructionBox.height);
+  
+  // Draw text
+  ctx.fillStyle = 'black';
+  ctx.font = '16px Arial';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'top';
+  
+  // Wrap text
+  const maxWidth = instructionBox.width - (instructionBox.padding * 2);
+  const words = instructionBox.text.split(' ');
+  let line = '';
+  let y = instructionBox.y + instructionBox.padding;
+  const lineHeight = 20;
+  
+  words.forEach(word => {
+    const testLine = line + word + ' ';
+    const metrics = ctx.measureText(testLine);
+    
+    if (metrics.width > maxWidth && line !== '') {
+      ctx.fillText(line, instructionBox.x + instructionBox.padding, y);
+      line = word + ' ';
+      y += lineHeight;
+    } else {
+      line = testLine;
+    }
+  });
+  ctx.fillText(line, instructionBox.x + instructionBox.padding, y);
+}
+
 //Obstacle
 
 class Obstacle {
@@ -630,8 +670,31 @@ async function loadLevel(path) {
       }, data.duration);
   }
 
+  if(data.instructions){
+    // Create instruction textbox
+    const boxWidth = 400;
+    const boxHeight = 150;
+    const boxX = (canvas.width - boxWidth) / 2;
+    const boxY = 50;
+    const padding = 20;
+    
+    // Store instructions for rendering
+    instructionBox = {
+      x: boxX,
+      y: boxY,
+      width: boxWidth,
+      height: boxHeight,
+      text: data.instructions,
+      padding: padding
+    };
+  } else {
+    instructionBox = null;
+  }
+
   console.log(watertanks);
 }
+
+
 
 
 
@@ -725,6 +788,7 @@ function loop() {
   targets.forEach(t => t.draw());
   obstacles.forEach(o => o.draw());
   raysplitters.forEach( r => r.draw());
+  drawInstructionBox();
 
   
   
