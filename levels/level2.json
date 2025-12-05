@@ -12,6 +12,14 @@
   "obstacles": [
     { "x": 450, "y": 180, "width": 40, "height": 220 }
   ],
+
+   "drLight": {
+    "img": "assets/characters/drLightReflection2_c.png",
+    "x": 40,
+    "y": 410,
+    "scale": 0.3
+  },
+
   "watertanks": [],
   "raysplitters": []
 }

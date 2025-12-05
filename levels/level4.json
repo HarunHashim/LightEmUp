@@ -3,7 +3,12 @@
 
   "lightSource": { "x": 120, "y": 360, "dx": 1, "dy": 0 },
 
-  "drLight": null,
+    "drLight": {
+    "img": "assets/characters/drLight_Diffusion.png",
+    "x": 0,
+    "y": 390,
+    "scale": 0.25
+  },
 
   "mirrors": [
     { "x": 620, "y": 260, "angle": -35 },

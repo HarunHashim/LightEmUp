@@ -800,7 +800,7 @@ function loop() {
 }
 
 async function startGame() {
-    bgm = new Audio("assets/music/test.mp3");
+    bgm = new Audio("assets/music/lightemup.mp3");
     bgm.loop = true;
     bgm.volume = 0.5;
 
